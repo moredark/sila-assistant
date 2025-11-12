@@ -1,4 +1,5 @@
 import { HTTP_STATUS } from "../constants/api";
+import { TranscriptionResponse } from "../types/transcription";
 
 export class TranscriptionError extends Error {
   constructor(message: string, public statusCode?: number) {
@@ -8,7 +9,7 @@ export class TranscriptionError extends Error {
 }
 
 export function handleTranscriptionError(
-  error: any,
+  error: unknown,
   statusCode?: number
 ): TranscriptionError {
   if (error instanceof TranscriptionError) {
@@ -63,7 +64,7 @@ export function handleTranscriptionError(
   );
 }
 
-export function validateTranscriptionResponse(result: any): string {
+export function validateTranscriptionResponse(result: TranscriptionResponse): string {
   if (!result.text) {
     throw new TranscriptionError("No transcription text received from API");
   }

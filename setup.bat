@@ -1,8 +1,8 @@
 @echo off
-REM Telegram Bot for Voice Notes in Obsidian - Setup Script for Windows
+REM Telegram Bot for Voice Messages to Text Tasks - Setup Script for Windows
 REM This script helps you set up the project quickly
 
-echo 🚀 Setting up Telegram Bot for Voice Notes in Obsidian...
+echo 🚀 Setting up Telegram Bot for Voice to Text Tasks...
 
 REM Check if Node.js is installed
 where node >nul 2>nul
@@ -33,12 +33,11 @@ if not exist logs mkdir logs
 REM Copy environment file if it doesn't exist
 if not exist .env (
     echo 📝 Creating .env file from template...
-    copy .env.example .env >nul
+    copy .env.local .env >nul
     echo ⚠️  Please edit .env file with your configuration:
     echo    - TELEGRAM_BOT_TOKEN: Get from @BotFather on Telegram
     echo    - API_KEY: Get from Cloud.ru Foundation Models
-    echo    - OBSIDIAN_VAULT_PATH: Path to your Obsidian vault
-    echo    - GIT_REPO_URL: Your Obsidian vault Git repository URL
+    echo    - GIT_REPO_URL: Your Git repository URL for task storage
 ) else (
     echo ✅ .env file already exists
 )

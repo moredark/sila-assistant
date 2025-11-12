@@ -1,6 +1,6 @@
 export interface HttpResponse {
   statusCode: number;
-  headers: any;
+  headers: Record<string, string | string[] | undefined>;
   body: string;
 }
 

@@ -51,7 +51,7 @@ export function buildRequestOptions(
 
 export function buildFormData(
   audioBuffer: Buffer,
-  payload: Record<string, string>
+  payload: Record<string, string | number>
 ): FormData {
   const formData = new FormData();
   formData.append("file", audioBuffer, {

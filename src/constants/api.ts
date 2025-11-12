@@ -22,6 +22,6 @@ export const HTTP_STATUS = {
 
 export const TRANSCRIPTION_CONFIG = {
   RESPONSE_FORMAT: "json",
-  TEMPERATURE: "0.5",
+  TEMPERATURE: 0.5,
   MAX_LOG_LENGTH: 50,
 } as const;

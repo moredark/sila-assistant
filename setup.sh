@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Telegram Bot for Voice Notes in Obsidian - Setup Script
+# Telegram Bot for Voice Messages to Text Tasks - Setup Script
 # This script helps you set up the project quickly
 
-echo "🚀 Setting up Telegram Bot for Voice Notes in Obsidian..."
+echo "🚀 Setting up Telegram Bot for Voice to Text Tasks..."
 
 # Check if Node.js is installed
 if ! command -v node &> /dev/null; then
@@ -38,12 +38,11 @@ mkdir -p logs
 # Copy environment file if it doesn't exist
 if [ ! -f .env ]; then
     echo "📝 Creating .env file from template..."
-    cp .env.example .env
+    cp .env.local .env
     echo "⚠️  Please edit .env file with your configuration:"
     echo "   - TELEGRAM_BOT_TOKEN: Get from @BotFather on Telegram"
     echo "   - API_KEY: Get from Cloud.ru Foundation Models"
-    echo "   - OBSIDIAN_VAULT_PATH: Path to your Obsidian vault"
-    echo "   - GIT_REPO_URL: Your Obsidian vault Git repository URL"
+    echo "   - GIT_REPO_URL: Your Git repository URL for task storage"
 else
     echo "✅ .env file already exists"
 fi

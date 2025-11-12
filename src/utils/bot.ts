@@ -1,20 +1,5 @@
 import { Context } from "grammy";
-import logger from "./logger";
 import { config } from "../config";
-
-export function isAuthorized(ctx: Context): boolean {
-  const allowedUsername = "moredarkie";
-  return ctx.from?.username === allowedUsername;
-}
-
-export async function handleUnauthorized(ctx: Context): Promise<void> {
-  logger.warn(
-    `Unauthorized access attempt by user ${ctx.from?.id} (@${ctx.from?.username})`
-  );
-  await ctx.reply(
-    "🚫 Доступ запрещен. Этот бот доступен только для авторизованного пользователя."
-  );
-}
 
 export async function downloadVoiceFile(ctx: Context): Promise<Buffer> {
   const voiceFile = await ctx.getFile();

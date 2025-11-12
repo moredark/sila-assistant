@@ -10,6 +10,8 @@ import {
   buildRequestOptions,
   buildFormData,
 } from "../utils/http";
+import { HttpResponse } from "../types/http";
+import FormData from "form-data";
 import {
   TranscriptionError,
   handleTranscriptionError,
@@ -64,8 +66,8 @@ export async function transcribeAudio(audioBuffer: Buffer): Promise<string> {
 }
 
 async function handleFailedRequest(
-  response: any,
-  formData: any
+  response: HttpResponse,
+  formData: FormData
 ): Promise<string> {
   if (response.statusCode === HTTP_STATUS.NOT_FOUND) {
     logger.warn("Trying alternative endpoints...");
@@ -102,7 +104,16 @@ async function handleFailedRequest(
   );
 }
 
-function logRequestDetails(apiUrl: string, payload: any, formData: any): void {
+function logRequestDetails(
+  apiUrl: string,
+  payload: {
+    model: string;
+    response_format: string;
+    temperature: number;
+    language: string;
+  },
+  formData: FormData
+): void {
   logger.info(`Making request to: ${apiUrl}`);
   logger.info(
     `API Key (first 10 chars): ${config.cloudru.apiKey.substring(0, 10)}...`
@@ -111,15 +122,13 @@ function logRequestDetails(apiUrl: string, payload: any, formData: any): void {
   logger.info(`Payload: ${JSON.stringify(payload)}`);
 }
 
-function logResponseDetails(response: any): void {
+function logResponseDetails(response: HttpResponse): void {
   logger.info(`Response status: ${response.statusCode}`);
   logger.info(`Response headers: ${JSON.stringify(response.headers)}`);
   logger.info(`Response body: ${response.body}`);
 }
 
-export async function transcribeAudioOffline(
-  audioBuffer: Buffer
-): Promise<string> {
+export async function transcribeAudioOffline(): Promise<string> {
   // TODO: Implement Vosk for offline transcription
   // This would require additional setup and model files
   logger.warn("Offline transcription not implemented yet");

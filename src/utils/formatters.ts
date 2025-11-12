@@ -27,13 +27,13 @@ export function cleanContentLine(line: string): string {
     .replace(/^[-*+]\s*/, "") // Remove bullet points
     .replace(/^\[[ x]\]\s*/, "") // Remove checkbox markers
     .replace(/^\d+\.\s*/, "") // Remove numbered list markers
-    .replace(/^[📝✅🔔💡]\s*/, "") // Remove common emojis
+    .replace(/^[📝✅🔔💡]\s*/u, "") // Remove common emojis
     .replace(/^-\s*/, "") // Remove dash
     .replace(/^•\s*/, "") // Remove bullet
     .trim();
 
   // Remove duplicate markers at the beginning
-  cleaned = cleaned.replace(/^[-*+\d\.\[\]📝✅🔔💡•]+\s*/, "");
+  cleaned = cleaned.replace(/^[-*+\d.[\]📝✅🔔💡•]+\s*/u, "");
 
   return cleaned;
 }

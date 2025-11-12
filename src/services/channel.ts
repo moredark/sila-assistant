@@ -1,7 +1,6 @@
 import { Bot } from "grammy";
 import { promises as fs } from "fs";
 import { join } from "path";
-import { config } from "../config";
 import logger from "../utils/logger";
 import {
   cleanContentLine,
@@ -22,9 +21,9 @@ export class ChannelService {
   private channelId: string;
   private storageFile: string;
 
-  constructor(bot: Bot) {
+  constructor(bot: Bot, privateChannelId: string) {
     this.bot = bot;
-    this.channelId = config.telegram.privateChannelId;
+    this.channelId = privateChannelId;
     this.storageFile = join(process.cwd(), "data", "channel-posts.json");
     this.ensureStorageDirectory();
   }
@@ -59,7 +58,9 @@ export class ChannelService {
       try {
         const data = await fs.readFile(this.storageFile, "utf-8");
         posts = JSON.parse(data);
-      } catch {}
+      } catch (error) {
+        // Intentionally ignore if file not found or parsing error, will be handled by outer try-catch
+      }
 
       posts.lastPost = { date, messageId };
       await fs.writeFile(this.storageFile, JSON.stringify(posts, null, 2));
@@ -271,6 +272,9 @@ export class ChannelService {
   }
 }
 
-export function createChannelService(bot: Bot): ChannelService {
-  return new ChannelService(bot);
+export function createChannelService(
+  bot: Bot,
+  privateChannelId: string
+): ChannelService {
+  return new ChannelService(bot, privateChannelId);
 }

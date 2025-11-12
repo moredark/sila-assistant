@@ -7,29 +7,25 @@ import { transcriptionRoutes } from "./routes/transcription";
 
 export async function createServer(): Promise<FastifyInstance> {
   const server = Fastify({
-    logger: false, // We use our own logger
+    logger: false,
   });
 
-  // Register plugins
   await server.register(cors, {
     origin: true,
   });
 
   await server.register(multipart, {
     limits: {
-      fileSize: 25 * 1024 * 1024, // 25MB limit for voice files
+      fileSize: 25 * 1024 * 1024, // 25MB
     },
   });
 
-  // Health check endpoint
-  server.get("/health", async (request, reply) => {
+  server.get("/health", async (_request, _reply) => {
     return { status: "ok", timestamp: new Date().toISOString() };
   });
 
-  // Register routes
   await server.register(transcriptionRoutes, { prefix: "/api/transcription" });
 
-  // Error handler
   server.setErrorHandler((error, request, reply) => {
     logger.error("Server error:", error);
     reply.status(500).send({ error: "Internal server error" });
