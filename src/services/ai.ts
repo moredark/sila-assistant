@@ -2,7 +2,6 @@ import { ChatOpenAI } from "langchain/chat_models/openai";
 import { HumanMessage, SystemMessage } from "langchain/schema";
 import { config } from "../config";
 import logger from "../utils/logger";
-import { PRIORITY_EMOJIS } from "../constants/emojis";
 
 const chatModel = new ChatOpenAI({
   openAIApiKey: config.cloudru.apiKey,
@@ -26,9 +25,6 @@ export interface TaskAnalysis {
 }
 
 export class AIService {
-  /**
-   * Analyze transcribed text to determine if it's a task and extract relevant information
-   */
   async analyzeText(text: string): Promise<TaskAnalysis> {
     try {
       logger.info(`Analyzing text: "${text.substring(0, 100)}..."`);
@@ -67,10 +63,8 @@ export class AIService {
       const response = await chatModel.call(messages);
       const responseText = response.content as string;
 
-      // Parse JSON response
       const analysis = JSON.parse(responseText) as TaskAnalysis;
 
-      // Validate and sanitize the response
       const sanitizedAnalysis: TaskAnalysis = {
         isTask: Boolean(analysis.isTask),
         action: analysis.action || "add",
@@ -85,7 +79,6 @@ export class AIService {
     } catch (error) {
       logger.error("Error analyzing text:", error);
 
-      // Fallback analysis
       return {
         isTask: this.isLikelyTask(text),
         action: "add",
@@ -95,9 +88,6 @@ export class AIService {
     }
   }
 
-  /**
-   * Simple heuristic to determine if text is likely a task
-   */
   private isLikelyTask(text: string): boolean {
     const taskIndicators = [
       "добавить",
@@ -142,11 +132,7 @@ export class AIService {
     return taskIndicators.some((indicator) => lowerText.includes(indicator));
   }
 
-  /**
-   * Clean and format the content
-   */
   private cleanContent(content: string): string {
-    // Remove common filler words and phrases
     const fillerWords = [
       "um",
       "uh",
@@ -174,16 +160,13 @@ export class AIService {
 
     let cleaned = content.trim();
 
-    // Remove filler words (case insensitive)
     fillerWords.forEach((word) => {
       const regex = new RegExp(`\\b${word}\\b`, "gi");
       cleaned = cleaned.replace(regex, "");
     });
 
-    // Clean up extra whitespace
     cleaned = cleaned.replace(/\s+/g, " ").trim();
 
-    // Capitalize first letter
     if (cleaned.length > 0) {
       cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
     }
@@ -191,21 +174,17 @@ export class AIService {
     return cleaned;
   }
 
-  /**
-   * Format task as Markdown
-   */
   formatTaskAsMarkdown(analysis: TaskAnalysis): string {
     let markdown = "";
 
     if (analysis.isTask) {
-      // Task format
       let taskLine = `${analysis.content}`;
 
       if (analysis.priority) {
-        taskLine = `${PRIORITY_EMOJIS[analysis.priority]} ${taskLine}`;
+        const priorityEmoji = this.getPriorityEmojiUnicode(analysis.priority);
+        taskLine = `${priorityEmoji} ${taskLine}`;
       }
 
-      // Add tags
       if (analysis.tags && analysis.tags.length > 0) {
         taskLine += ` #${analysis.tags.join(" #")}`;
       }
@@ -221,7 +200,15 @@ export class AIService {
 
     return markdown;
   }
+
+  private getPriorityEmojiUnicode(priority: "low" | "medium" | "high"): string {
+    const emojiMap = {
+      high: "\uD83D\uDD34", // 🔴
+      medium: "\uD83D\uDD2B", // 🟡
+      low: "\uD83D\uDFE2", // 🟢
+    };
+    return emojiMap[priority];
+  }
 }
 
-// Export singleton instance
 export const aiService = new AIService();
