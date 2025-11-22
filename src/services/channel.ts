@@ -264,7 +264,10 @@ export class ChannelService {
 
     if (bestMatch) {
       const foundMatch = bestMatch;
-      return { task: (foundMatch as { task: string; index: number }).task, index: (foundMatch as { task: string; index: number }).index };
+      return {
+        task: (foundMatch as { task: string; index: number }).task,
+        index: (foundMatch as { task: string; index: number }).index,
+      };
     }
     return null;
   }
@@ -280,7 +283,7 @@ export class ChannelService {
     const taskToComplete = this.findTask(currentContent.tasks, taskContent);
 
     if (taskToComplete) {
-      currentContent.tasks[taskToComplete.index] = `~${taskToComplete.task}~`;
+      currentContent.tasks[taskToComplete.index] = `~~${taskToComplete.task}~~`;
       const updatedContent = this.formatPostContent(currentContent, post.date);
       await this.bot.api.editMessageText(
         this.channelId,
