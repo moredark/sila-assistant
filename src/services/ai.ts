@@ -52,6 +52,8 @@ export class AIService {
 - "Добавить уборку в мой список дел" → {"isTask": true, "action": "add", "content": "Сделать уборку", "priority": null, "tags": [], "confidence": 0.9}
 - "Не забыть купить молоко" → {"isTask": true, "action": "add", "content": "Купить молоко", "priority": null, "tags": ["покупки"], "confidence": 0.8}
 - "Позвонить маме завтра" → {"isTask": true, "action": "add", "content": "Позвонить маме завтра", "priority": "medium", "tags": ["семья"], "confidence": 0.9}
+- "Удалить задачу про уборку" → {"isTask": true, "action": "delete", "content": "уборка", "priority": null, "tags": [], "confidence": 0.9}
+- "Я сделал уборку" → {"isTask": true, "action": "complete", "content": "уборка", "priority": null, "tags": [], "confidence": 0.8}
 - "Заметка: встреча в 3 часа" → {"isTask": false, "action": "note", "content": "Встреча в 3 часа", "priority": null, "tags": [], "confidence": 0.8}
 - "У меня есть идея для проекта" → {"isTask": false, "action": "idea", "content": "У меня есть идея для проекта", "priority": null, "tags": [], "confidence": 0.7}`;
 

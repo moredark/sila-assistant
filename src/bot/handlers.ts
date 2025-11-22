@@ -233,21 +233,73 @@ If automatic detection doesn't work:
 
       const markdownTask = aiService.formatTaskAsMarkdown(analysis);
 
-      await ctx.api.editMessageText(
-        ctx.chat!.id,
-        processingMsg.message_id,
-        BOT_MESSAGES.ADDING_TO_CHANNEL
-      );
-
       const contentType = getContentTypeFromAction(analysis.action);
 
-      await channelService.addContentToDailyPost(markdownTask, contentType);
+      let successMessage: string;
+      let completeResult;
+      let deleteResult;
 
-      const successMessage = formatSuccessMessage(
-        contentType,
-        markdownTask,
-        analysis.confidence
-      );
+      switch (analysis.action) {
+        case "add":
+        case "note":
+        case "idea":
+          await ctx.api.editMessageText(
+            ctx.chat!.id,
+            processingMsg.message_id,
+            BOT_MESSAGES.ADDING_TO_CHANNEL
+          );
+
+          await channelService.addContentToDailyPost(markdownTask, contentType);
+          successMessage = formatSuccessMessage(
+            analysis.action,
+            markdownTask,
+            analysis.confidence,
+            contentType
+          );
+          break;
+        case "complete":
+          await ctx.api.editMessageText(
+            ctx.chat!.id,
+            processingMsg.message_id,
+            `✅ Выполняю задачу...`
+          );
+
+          completeResult = await channelService.completeTask(analysis.content);
+
+          if (completeResult.success) {
+            successMessage = formatSuccessMessage(
+              "complete",
+              completeResult.task!,
+              analysis.confidence,
+              "task"
+            );
+          } else {
+            successMessage = `❌ Не удалось найти задачу для выполнения: "${analysis.content}"`;
+          }
+          break;
+        case "delete":
+          await ctx.api.editMessageText(
+            ctx.chat!.id,
+            processingMsg.message_id,
+            `🗑️ Удаляю задачу...`
+          );
+
+          deleteResult = await channelService.deleteTask(analysis.content);
+          if (deleteResult.success) {
+            successMessage = formatSuccessMessage(
+              "delete",
+              deleteResult.task!,
+              analysis.confidence,
+              "task"
+            );
+          } else {
+            successMessage = `❌ Не удалось найти задачу для удаления: "${analysis.content}"`;
+          }
+          break;
+
+        default:
+          throw new Error(`Unhandled action: ${analysis.action}`);
+      }
 
       await ctx.api.editMessageText(
         ctx.chat!.id,

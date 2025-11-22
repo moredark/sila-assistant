@@ -1,5 +1,6 @@
 import { Context } from "grammy";
 import { config } from "../config";
+import { ContentType, ActionType } from "../types/channel";
 
 export async function downloadVoiceFile(ctx: Context): Promise<Buffer> {
   const voiceFile = await ctx.getFile();
@@ -10,9 +11,7 @@ export async function downloadVoiceFile(ctx: Context): Promise<Buffer> {
   return Buffer.from(await response.arrayBuffer());
 }
 
-export function getContentTypeFromAction(
-  action: string
-): "task" | "note" | "idea" {
+export function getContentTypeFromAction(action: string): ContentType {
   switch (action) {
     case "note":
       return "note";
@@ -24,9 +23,10 @@ export function getContentTypeFromAction(
 }
 
 export function formatSuccessMessage(
-  contentType: "task" | "note" | "idea",
+  action: ActionType,
   markdownTask: string,
-  confidence: number
+  confidence: number,
+  contentType: ContentType
 ): string {
   const contentTypeNames = {
     task: "Задача",
@@ -35,11 +35,30 @@ export function formatSuccessMessage(
   };
 
   const contentTypeText = contentTypeNames[contentType];
-  return (
-    `✅ ${contentTypeText} добавлена в канал!\n\n` +
-    `📝 Содержимое: ${markdownTask}\n` +
-    `🎯 Уверенность: ${Math.round(confidence * 100)}%`
-  );
+
+  switch (action) {
+    case "complete":
+      return (
+        `✅ Задача выполнена в канале!\n\n` +
+        `📝 Содержимое: ${markdownTask}\n` +
+        `🎯 Уверенность: ${Math.round(confidence * 100)}%`
+      );
+    case "delete":
+      return (
+        `✅ Задача удалена из канала!\n\n` +
+        `📝 Содержимое: ${markdownTask}\n` +
+        `🎯 Уверенность: ${Math.round(confidence * 100)}%`
+      );
+    case "add":
+    case "note":
+    case "idea":
+    default:
+      return (
+        `✅ ${contentTypeText} добавлена в канал!\n\n` +
+        `📝 Содержимое: ${markdownTask}\n` +
+        `🎯 Уверенность: ${Math.round(confidence * 100)}%`
+      );
+  }
 }
 
 export function formatErrorMessage(error: unknown): string {

@@ -245,6 +245,80 @@ export class ChannelService {
     return buildPostContent(content.notes, content.tasks, content.ideas, date);
   }
 
+  private findTask(
+    tasks: string[],
+    taskContent: string
+  ): { task: string; index: number } | null {
+    const lowerTaskContent = taskContent.toLowerCase();
+    let bestMatch: { task: string; index: number; score: number } | null = null;
+
+    tasks.forEach((task, index) => {
+      const lowerTask = task.toLowerCase();
+      if (lowerTask.includes(lowerTaskContent)) {
+        const score = lowerTaskContent.length / lowerTask.length;
+        if (!bestMatch || score > bestMatch.score) {
+          bestMatch = { task, index, score };
+        }
+      }
+    });
+
+    if (bestMatch) {
+      const foundMatch = bestMatch;
+      return { task: (foundMatch as { task: string; index: number }).task, index: (foundMatch as { task: string; index: number }).index };
+    }
+    return null;
+  }
+
+  async completeTask(
+    taskContent: string,
+    date?: Date
+  ): Promise<{ success: boolean; task?: string }> {
+    const post = await this.getOrCreateDailyPost(date);
+    if (!post) return { success: false };
+
+    const currentContent = this.parsePostContent(post.content);
+    const taskToComplete = this.findTask(currentContent.tasks, taskContent);
+
+    if (taskToComplete) {
+      currentContent.tasks[taskToComplete.index] = `~${taskToComplete.task}~`;
+      const updatedContent = this.formatPostContent(currentContent, post.date);
+      await this.bot.api.editMessageText(
+        this.channelId,
+        post.messageId,
+        updatedContent
+      );
+      logger.info(`Completed task: "${taskToComplete.task}"`);
+      return { success: true, task: taskToComplete.task };
+    }
+
+    return { success: false };
+  }
+
+  async deleteTask(
+    taskContent: string,
+    date?: Date
+  ): Promise<{ success: boolean; task?: string }> {
+    const post = await this.getOrCreateDailyPost(date);
+    if (!post) return { success: false };
+
+    const currentContent = this.parsePostContent(post.content);
+    const taskToDelete = this.findTask(currentContent.tasks, taskContent);
+
+    if (taskToDelete) {
+      currentContent.tasks.splice(taskToDelete.index, 1);
+      const updatedContent = this.formatPostContent(currentContent, post.date);
+      await this.bot.api.editMessageText(
+        this.channelId,
+        post.messageId,
+        updatedContent
+      );
+      logger.info(`Deleted task: "${taskToDelete.task}"`);
+      return { success: true, task: taskToDelete.task };
+    }
+
+    return { success: false };
+  }
+
   async getDailyPost(date?: Date): Promise<ChannelPostResult | null> {
     const targetDate = date || new Date();
     return await this.findTodayPost(targetDate);

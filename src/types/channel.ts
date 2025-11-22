@@ -5,6 +5,7 @@ export interface ChannelPostResult {
 }
 
 export type ContentType = "task" | "note" | "idea";
+export type ActionType = "add" | "complete" | "delete" | "note" | "idea";
 export type SectionType = "notes" | "tasks" | "ideas";
 
 export interface ChannelContent {
