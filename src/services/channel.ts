@@ -118,7 +118,8 @@ export class ChannelService {
       await this.bot.api.editMessageText(
         this.channelId,
         post.messageId,
-        updatedContent
+        updatedContent,
+        { parse_mode: "Markdown" }
       );
 
       logger.info(`Added ${contentType} to daily post ${post.messageId}`);
@@ -192,7 +193,11 @@ export class ChannelService {
       dateStr
     );
 
-    const message = await this.bot.api.sendMessage(this.channelId, content);
+    const message = await this.bot.api.sendMessage(
+      this.channelId,
+      content,
+      { parse_mode: "Markdown" }
+    );
 
     await this.saveLastPost(dateStr, message.message_id);
 
@@ -283,12 +288,16 @@ export class ChannelService {
     const taskToComplete = this.findTask(currentContent.tasks, taskContent);
 
     if (taskToComplete) {
-      currentContent.tasks[taskToComplete.index] = `~~${taskToComplete.task}~~`;
+      if (taskToComplete.task.startsWith("~") && taskToComplete.task.endsWith("~")) {
+        return { success: false };
+      }
+      currentContent.tasks[taskToComplete.index] = `~${taskToComplete.task}~`;
       const updatedContent = this.formatPostContent(currentContent, post.date);
       await this.bot.api.editMessageText(
         this.channelId,
         post.messageId,
-        updatedContent
+        updatedContent,
+        { parse_mode: "Markdown" }
       );
       logger.info(`Completed task: "${taskToComplete.task}"`);
       return { success: true, task: taskToComplete.task };
@@ -313,7 +322,8 @@ export class ChannelService {
       await this.bot.api.editMessageText(
         this.channelId,
         post.messageId,
-        updatedContent
+        updatedContent,
+        { parse_mode: "Markdown" }
       );
       logger.info(`Deleted task: "${taskToDelete.task}"`);
       return { success: true, task: taskToDelete.task };
