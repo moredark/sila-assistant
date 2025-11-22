@@ -5,7 +5,6 @@ dotenv.config();
 export interface Config {
   telegram: {
     botToken: string;
-    privateChannelId: string;
   };
   cloudru: {
     apiKey: string;
@@ -44,7 +43,6 @@ const getEnvWithDefault = (key: string, defaultValue: string): string => {
 export const config: Config = {
   telegram: {
     botToken: getRequiredEnv("TELEGRAM_BOT_TOKEN"),
-    privateChannelId: getRequiredEnv("PRIVATE_CHANNEL_ID"),
   },
   cloudru: {
     apiKey: getRequiredEnv("API_KEY"),
