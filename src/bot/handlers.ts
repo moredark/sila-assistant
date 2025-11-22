@@ -16,6 +16,7 @@ import {
   formatSuccessMessage,
   formatErrorMessage,
 } from "../utils/bot";
+import { voiceMessageRateLimiter } from "../services/rateLimiter";
 
 export function setupHandlers(bot: Bot) {
   bot.command("start", async (ctx: Context) => {
@@ -176,6 +177,11 @@ If automatic detection doesn't work:
   bot.on("message:voice", async (ctx: Context) => {
     const userId = String(ctx.from?.id);
     logger.info(`Voice message from userId: ${userId}`);
+
+    if (!voiceMessageRateLimiter.check(userId)) {
+      await ctx.reply(BOT_MESSAGES.RATE_LIMIT_EXCEEDED);
+      return;
+    }
 
     let userConfig;
     try {
