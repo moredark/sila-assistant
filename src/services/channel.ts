@@ -119,7 +119,7 @@ export class ChannelService {
         this.channelId,
         post.messageId,
         updatedContent,
-        { parse_mode: "Markdown" }
+        { parse_mode: "HTML" }
       );
 
       logger.info(`Added ${contentType} to daily post ${post.messageId}`);
@@ -193,9 +193,11 @@ export class ChannelService {
       dateStr
     );
 
-    const message = await this.bot.api.sendMessage(this.channelId, content, {
-      parse_mode: "Markdown",
-    });
+    const message = await this.bot.api.sendMessage(
+      this.channelId,
+      content,
+      { parse_mode: "HTML" }
+    );
 
     await this.saveLastPost(dateStr, message.message_id);
 
@@ -286,20 +288,17 @@ export class ChannelService {
     const taskToComplete = this.findTask(currentContent.tasks, taskContent);
 
     if (taskToComplete) {
-      if (
-        taskToComplete.task.startsWith("~") &&
-        taskToComplete.task.endsWith("~")
-      ) {
-        return { success: false };
-      }
-      currentContent.tasks[taskToComplete.index] = `~~${taskToComplete.task}~~`;
-      const updatedContent = this.formatPostContent(currentContent, post.date);
-      await this.bot.api.editMessageText(
-        this.channelId,
-        post.messageId,
-        updatedContent,
-        { parse_mode: "Markdown" }
-      );
+            if (taskToComplete.task.startsWith("<s>") && taskToComplete.task.endsWith("</s>")) {
+              return { success: false };
+            }
+            currentContent.tasks[taskToComplete.index] = `<s>${taskToComplete.task}</s>`;
+            const updatedContent = this.formatPostContent(currentContent, post.date);
+            await this.bot.api.editMessageText(
+              this.channelId,
+              post.messageId,
+              updatedContent,
+              { parse_mode: "HTML" }
+            );
       logger.info(`Completed task: "${taskToComplete.task}"`);
       return { success: true, task: taskToComplete.task };
     }
@@ -324,7 +323,7 @@ export class ChannelService {
         this.channelId,
         post.messageId,
         updatedContent,
-        { parse_mode: "Markdown" }
+        { parse_mode: "HTML" }
       );
       logger.info(`Deleted task: "${taskToDelete.task}"`);
       return { success: true, task: taskToDelete.task };
