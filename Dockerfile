@@ -1,41 +1,44 @@
-FROM node:22-alpine
+# ---- Builder Stage ----
+FROM node:22-alpine AS builder
 
-# Set working directory
 WORKDIR /app
 
-# Install system dependencies for SQLite and audio processing
-RUN apk add --no-cache \
-    python3 \
-    make \
-    g++ \
-    sqlite \
-    ffmpeg
+# Install build-time dependencies
+RUN apk add --no-cache python3 make g++
 
-# Copy package files
+# Copy package files and install ALL dependencies
 COPY package*.json ./
+RUN npm ci
 
-# Install dependencies
-RUN npm ci --only=production
+# Copy the rest of the source code
+COPY . .
 
-# Copy source code
-COPY src/ ./src/
-COPY tsconfig.json ./
-
-# Build the application
+# Build the TypeScript project
 RUN npm run build
 
-# Create necessary directories
-RUN mkdir -p data logs
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S bot -u 1001
+# ---- Production Stage ----
+FROM node:22-alpine
 
-# Change ownership of the app directory
-RUN chown -R bot:nodejs /app
+WORKDIR /app
+
+# Install production-only system dependencies
+RUN apk add --no-cache sqlite ffmpeg
+
+# Create and switch to a non-root user
+RUN addgroup -S --gid 1001 nodejs && adduser -S --uid 1001 bot -G nodejs
 USER bot
 
-# Expose port
+# Copy package files and install ONLY production dependencies
+COPY --chown=bot:nodejs package*.json ./
+RUN npm ci --only=production
+
+# Copy the built application from the builder stage
+COPY --from=builder --chown=bot:nodejs /app/dist ./dist
+
+# Create necessary directories (data and logs will be mounted as volumes)
+RUN mkdir -p data logs
+
 EXPOSE 3000
 
 # Health check
