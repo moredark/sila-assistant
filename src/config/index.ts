@@ -9,16 +9,6 @@ export interface Config {
   cloudru: {
     apiKey: string;
   };
-  obsidian: {
-    vaultPath: string;
-    dailyNotesFolder: string;
-  };
-  git: {
-    repoUrl: string;
-    branch: string;
-    authorName: string;
-    authorEmail: string;
-  };
   server: {
     port: number;
     host: string;
@@ -46,19 +36,6 @@ export const config: Config = {
   },
   cloudru: {
     apiKey: getRequiredEnv("API_KEY"),
-  },
-  obsidian: {
-    vaultPath: getRequiredEnv("OBSIDIAN_VAULT_PATH"),
-    dailyNotesFolder: getEnvWithDefault(
-      "OBSIDIAN_DAILY_NOTES_FOLDER",
-      "daily-notes"
-    ),
-  },
-  git: {
-    repoUrl: getRequiredEnv("GIT_REPO_URL"),
-    branch: getEnvWithDefault("GIT_BRANCH", "main"),
-    authorName: getEnvWithDefault("GIT_AUTHOR_NAME", "Telegram Bot"),
-    authorEmail: getEnvWithDefault("GIT_AUTHOR_EMAIL", "bot@example.com"),
   },
   server: {
     port: parseInt(getEnvWithDefault("PORT", "3000"), 10),
