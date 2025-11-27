@@ -5,7 +5,7 @@ import logger from "../utils/logger";
 
 const chatModel = new ChatOpenAI({
   openAIApiKey: config.cloudru.apiKey,
-  modelName: "GigaChat/GigaChat-2-Max",
+  modelName: "ai-sage/GigaChat3-10B-A1.8B",
   temperature: 0.5,
   maxTokens: 2500,
   presencePenalty: 0,
